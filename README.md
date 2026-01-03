@@ -1,4 +1,4 @@
-# ゼロから作るDeep Learning in common lisp
+# _ゼロから作るDeep Learning_ in common lisp
 
 ## 概要
 
