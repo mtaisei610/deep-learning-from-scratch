@@ -40,3 +40,7 @@ Lispで実装しようとしています。
 - 偏微分を実装し、勾配降下を行なう`gradient-descent`関数を実装。(`diff.lisp`内)
 
 - 型宣言も調べたが、まだよくわっていない。
+
+#### 1/5
+
+- `map-into`を使って、`do-sarray`マクロを使わずに`gradient-descent`を実装しなおした。

@@ -75,8 +75,7 @@ Example:
     (declare (type (simple-array double-float (*)) xs))
     (replace xs init-xs)
     (dotimes (i step)
-      (do-sarray* ((x xs) (g (grad #'f xs)))
-	(decf x (* lr g))))
+      (map-into xs (lambda (x g) (- x (* lr g))) xs (grad f xs)))
     xs))
 
 
