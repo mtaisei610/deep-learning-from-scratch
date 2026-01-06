@@ -1,0 +1,18 @@
+;; ARG (a) must be vector(double-float)
+(defun softmax (a)
+  ;(declare (type (simple-array double-float (*)) a))
+  (let ((c (reduce #'max a))
+	(ret (make-array (length a) :element-type 'double-float))
+	(sum 0.0d0))
+    (map-into ret (lambda (x) (exp (- x c))) a)
+    (setf sum (reduce #'+ ret))
+    (map-into ret (lambda (x) (/ x sum)) ret)
+    ret))
+
+(defun cross-entropy-error (y c)
+  (let ((delta 1e-7)
+        (sum 0.0))
+    (dotimes (i (length y) (- sum))
+      (incf sum
+            (* (aref c i)
+               (log (+ (aref y i) delta)))))))
