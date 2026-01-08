@@ -17,6 +17,10 @@
 (in-package :matrix)
 
 
+;; =======================================================
+;;  Library Calling (OpenBLAS)
+;; =======================================================
+
 (define-foreign-library libopenblas
       (:darwin (:or "libopenblas.dylib" "libblas.dylib"))
       (:unix (:or "libopenblas.so" "libblas.so"))
@@ -92,7 +96,11 @@
 
 
 
-;; ----- Library Utility Func -----
+;; =======================================================
+;;  Wrappers
+;; =======================================================
+
+
 
 (defstruct matrix
   "matrix data structure"
@@ -155,18 +163,32 @@
     result))
 
 
-(defun dot (mat-a mat-b)
+(defun dot (mat-a mat-b &optional (mat-c nil mat-c-p))
   (declare (type matrix mat-a)
            (type matrix mat-b))
-  "matrix product"
+  "matrix product: αA・B + C"
   (let ((m (matrix-rows mat-a))
 	(k (matrix-cols mat-a))
 	(k2 (matrix-rows mat-b))
 	(n (matrix-cols mat-b)))
-    (assert (= k k2) () "[matlib::dot] Dimention mismatch.")
-    (let* ((mat-c (zeros m n))
+    (assert (= k k2) () "[matlib::dot] Dimention mismatch. (A,B)")
+    (if mat-c-p
+        (assert (= m (matrix-rows mat-c)) () "[matlib::dot] Dimention mismatch. (A,C)")
+        (assert (= n (matrix-cols mat-c)) () "[matlib::dot] Dimention mismatch. (B,C)"))
+    (let* ((ret-and-c (if mat-c-p (copy mat-c) (zeros m n)))
 	   (arr-a (matrix-data mat-a))
 	   (arr-b (matrix-data mat-b))
 	   (arr-c (matrix-data mat-c)))
       (sgemm m n k arr-a arr-b arr-c 1.0 0.0)
-      mat-c)))
+      ret-and-c)))
+
+
+;; Helper
+(defun tof (&rest rest)
+  "int args to vector(single-float)."
+  (map 'vector (lambda (x) (coerce x 'single-float)) rest))
+
+(let ((a (from-vector 2 3 (tof 1 2 3 4 5 6)))
+      (b (from-vector 3 2 (tof 1 1 1 1 1 1)))
+      (c (from-vector 2 2 (tof 10 10 10 10))))
+  (show (dot a b c)))
